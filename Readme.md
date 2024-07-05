@@ -1,0 +1,1 @@
+Develop a platform for farmers to sell their crop products with features to locate nearby marketplaces, view current supply and demand, and manage sales effectively. The platform will also educate farmers about e-farming and serve as a secure agro-marketing method.
