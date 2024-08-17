@@ -5,6 +5,8 @@ import Header from './components/layout/Header.jsx';
 import Register from './pages/Register.jsx';
 import Login from './pages/Login.jsx';
 import ProductDetails from './components/public/ProductDetails.jsx';
+import FarmerDashboard from './components/Farmer/FarmerDashboard.jsx';
+import Marketplace from './pages/MarketPlace.jsx';
 
 
 function App() {
@@ -16,6 +18,8 @@ function App() {
         <Route path='/register' element={< Register />} />
         <Route path='/login' element={< Login />} />
         <Route path='/productdetails' element={<ProductDetails />} />
+        <Route path='/farmerdashboard' element={<FarmerDashboard />} />
+        <Route path='/marketplace' element={<Marketplace />} />
       </Routes>
     </Router>
   );
