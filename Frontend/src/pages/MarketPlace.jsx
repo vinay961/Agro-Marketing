@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const demoProducts = [
   { id: 1, name: 'Organic Tomatoes', price: '₹30/- per kg', image: 'https://example.com/product-image1.jpg', rating: 4, reviews: 85, category: 'Vegetables' },
@@ -21,6 +22,7 @@ const Marketplace = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const navigate = useNavigate()
 
   // Filter products based on search term and selected category
   const filteredProducts = demoProducts.filter((product) => {
@@ -88,7 +90,7 @@ const Marketplace = () => {
                 <span className="ml-2 text-gray-500">({product.reviews} reviews)</span>
               </div>
               <p className="text-sm text-gray-500 mb-4">Category: {product.category}</p>
-              <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2">
+              <button onClick={()=>{navigate('/productdetails')}} className="bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2">
                 View Details
               </button>
               <button className="bg-green-500 text-white font-bold py-2 px-4 rounded">

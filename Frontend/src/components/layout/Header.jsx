@@ -1,12 +1,31 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
-function Header({ isAuthenticated, handleLogout }) { // Receive props
+function Header({ isAuthenticated, logout, userRole }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const dropdownRef = useRef(null); // Reference to the dropdown
 
   const toggleDropdown = () => {
     setIsDropdownVisible(!isDropdownVisible);
   };
+
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsDropdownVisible(false); // Hide dropdown if clicked outside
+    }
+  };
+
+  useEffect(() => {
+    if (isDropdownVisible) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownVisible]);
 
   return (
     <header className="bg-green-700 text-white py-4 shadow-md">
@@ -37,7 +56,7 @@ function Header({ isAuthenticated, handleLogout }) { // Receive props
         {/* User Authentication Buttons or Avatar */}
         <div className="flex space-x-4">
           {isAuthenticated ? (
-            <div className="relative">
+            <div className="relative" ref={dropdownRef}>
               <button 
                 onClick={toggleDropdown}
                 className="w-10 h-10 rounded-full bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-700 focus:ring-white"
@@ -53,13 +72,17 @@ function Header({ isAuthenticated, handleLogout }) { // Receive props
                   <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Profile
                   </Link>
+                  {userRole == 'farmer' && (
+                    <Link to="/farmerdashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                      Dashboard
+                    </Link>
+                  )}
                   <button 
-                    onClick={handleLogout} // Use handleLogout from props
+                    onClick={logout} 
                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Logout
                   </button>
-                  {/* Add more options here if needed */}
                 </div>
               )}
             </div>
