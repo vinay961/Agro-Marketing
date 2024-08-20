@@ -1,6 +1,7 @@
 import {asyncHandler} from '../utils/AsyncHandler.js'
 import { ApiError } from '../utils/ApiError.js'
 import {ApiResponse} from '../utils/ApiResponse.js'
+import jwt from "jsonwebtoken"
 
 import {User} from '../model/user.model.js'
 
@@ -66,13 +67,11 @@ const login = asyncHandler(async(req,res)=> {
     const options = {
         httpOnly:true,
         secure:true,
-        sameSite:'None'
     }
-
     return res
         .status(201)
+        .cookie("accessToken",accessToken,options)
         .json(new ApiResponse(201,loggedInUser,"Login successfully"))
-
 })
 
 export {

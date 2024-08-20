@@ -2,33 +2,36 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { post } from '../services/Api.jsx';
 
-function Login() {
+function Login({ login }) { // Receive login function as prop
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [errorMessage,setErrorMessage] = useState('')
-  const [successMessage,setSuccessMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await post("/users/login",{email,password});
+      const response = await post("/users/login", { email, password });
       console.log('Login successful:', response.data);
-      setSuccessMessage('Login Successfull, Redirect to marketplace')
-      setTimeout(()=>{
-        setSuccessMessage('')
-      },2000)
-      setErrorMessage('')
-      setTimeout(()=>{
-        navigate('/marketplace')
-      },2000)
+      setSuccessMessage('Login Successful, Redirecting to marketplace...');
+      
+      // Call the login function passed from App.jsx to update auth state
+      login(response.data);
+
+      setTimeout(() => {
+        setSuccessMessage('');
+        navigate('/marketplace');
+      }, 2000);
+
+      setErrorMessage('');
     } catch (error) {
-      console.error("Login failed!",error.response?.data || error.message);
-      setErrorMessage("Login failed!"+ error.message||"Something went wrong")
-      setTimeout(()=>{
-        setErrorMessage('')
-      },2000)
-      setSuccessMessage('')
+      console.error("Login failed!", error.response?.data || error.message);
+      setErrorMessage("Login failed! " + (error.message || "Something went wrong"));
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 2000);
+      setSuccessMessage('');
     }
   };
 
@@ -38,7 +41,7 @@ function Login() {
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
         {successMessage && (
           <div className="mb-4 text-green-500 text-center shadow-lg p-2 rounded"
-          style={{ boxShadow: '0 4px 6px rgba(34, 197, 94, 0.5)' }}
+            style={{ boxShadow: '0 4px 6px rgba(34, 197, 94, 0.5)' }}
           >
             {successMessage}
           </div>
@@ -46,7 +49,7 @@ function Login() {
 
         {errorMessage && (
           <div className="mb-4 text-red-500 text-center p-2 rounded"
-          style={{ boxShadow: '0 4px 6px rgba(239, 68, 68, 0.5)' }}
+            style={{ boxShadow: '0 4px 6px rgba(239, 68, 68, 0.5)' }}
           >
             {errorMessage}
           </div>

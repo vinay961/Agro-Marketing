@@ -23,6 +23,9 @@ const userSchema = new Schema({
     role:{
         type:String,
         required:true
+    },
+    accessToken:{
+        type:String
     }
 },{timestamps:true})
 
