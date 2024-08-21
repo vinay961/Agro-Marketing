@@ -1,7 +1,9 @@
 import React from 'react';
+import {useNavigate} from 'react-router-dom'
 
 const FarmerDashboard = () => {
   const farmerName = "Vinay Rai";
+  const navigate = useNavigate()
 
   // Demo data for products
   const products = [
@@ -18,55 +20,54 @@ const FarmerDashboard = () => {
   ];
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       {/* Header Section */}
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Welcome, {farmerName}!</h1>
+      <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+        <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-0">Welcome, {farmerName}!</h1>
         <nav>
-          <ul className="flex space-x-4">
+          <ul className="flex flex-wrap md:space-x-4 space-x-2 font-bold">
             <li><a href="#dashboard" className="text-blue-500 hover:underline">Dashboard</a></li>
             <li><a href="#product-management" className="text-blue-500 hover:underline">Product Management</a></li>
             <li><a href="#order-management" className="text-blue-500 hover:underline">Orders</a></li>
             <li><a href="#account-settings" className="text-blue-500 hover:underline">Account Settings</a></li>
-            <li><a href="#logout" className="text-red-500 hover:underline">Logout</a></li>
           </ul>
         </nav>
       </header>
 
       {/* Overview/Stats Section */}
-      <section id="dashboard" className="grid grid-cols-2 gap-4 mb-8">
+      <section id="dashboard" className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold">Total Products</h2>
-          <p className="text-2xl font-semibold">{products.length}</p>
+          <h2 className="text-lg md:text-xl font-bold">Total Products</h2>
+          <p className="text-xl md:text-2xl font-semibold">{products.length}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold">Total Orders</h2>
-          <p className="text-2xl font-semibold">{orders.length}</p>
+          <h2 className="text-lg md:text-xl font-bold">Total Orders</h2>
+          <p className="text-xl md:text-2xl font-semibold">{orders.length}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold">Pending Orders</h2>
-          <p className="text-2xl font-semibold">{orders.filter(order => order.status === 'Pending').length}</p>
+          <h2 className="text-lg md:text-xl font-bold">Pending Orders</h2>
+          <p className="text-xl md:text-2xl font-semibold">{orders.filter(order => order.status === 'Pending').length}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold">Earnings</h2>
-          <p className="text-2xl font-semibold">₹10,000</p>
+          <h2 className="text-lg md:text-xl font-bold">Earnings</h2>
+          <p className="text-xl md:text-2xl font-semibold">₹10,000</p>
         </div>
       </section>
 
       {/* Product Management Section */}
       <section id="product-management" className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Product Management</h2>
-        <button className="bg-green-500 text-white font-bold py-2 px-4 rounded mb-4">Add New Product</button>
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Product Management</h2>
+        <button onClick={()=>{navigate('/addproduct')}} className="bg-green-500 text-white font-bold py-2 px-4 rounded mb-4">Add New Product</button>
         <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h3 className="text-xl font-semibold mb-4">Your Products</h3>
+          <h3 className="text-lg md:text-xl font-semibold mb-4">Your Products</h3>
           <ul>
             {products.map(product => (
-              <li key={product.id} className="flex justify-between items-center mb-2">
+              <li key={product.id} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
                 <span>{product.name}</span>
                 <span>{product.price}</span>
                 <span>Stock: {product.stock}</span>
-                <div>
-                  <button className="bg-blue-500 text-white font-bold py-1 px-3 rounded mr-2">Edit</button>
+                <div className="mt-2 md:mt-0">
+                  <button onClick={()=>{navigate('/editproduct')}} className="bg-blue-500 text-white font-bold py-1 px-3 rounded mr-2">Edit</button>
                   <button className="bg-red-500 text-white font-bold py-1 px-3 rounded">Delete</button>
                 </div>
               </li>
@@ -77,17 +78,17 @@ const FarmerDashboard = () => {
 
       {/* Order Management Section */}
       <section id="order-management" className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Order Management</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Order Management</h2>
         <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h3 className="text-xl font-semibold mb-4">Recent Orders</h3>
+          <h3 className="text-lg md:text-xl font-semibold mb-4">Recent Orders</h3>
           <ul>
             {orders.map(order => (
-              <li key={order.id} className="flex justify-between items-center mb-2">
+              <li key={order.id} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
                 <span>{order.product}</span>
                 <span>Qty: {order.quantity}</span>
                 <span>Customer: {order.customer}</span>
                 <span>Status: {order.status}</span>
-                <button className="bg-yellow-500 text-white font-bold py-1 px-3 rounded">Update Status</button>
+                <button className="bg-yellow-500 text-white font-bold py-1 px-3 rounded mt-2 md:mt-0">Update Status</button>
               </li>
             ))}
           </ul>
@@ -96,7 +97,7 @@ const FarmerDashboard = () => {
 
       {/* Notifications Section */}
       <section id="notifications" className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Notifications</h2>
         <div className="bg-yellow-100 p-4 rounded-lg">
           <p>🔔 Low stock alert: Organic Tomatoes - 100 kg left</p>
         </div>
@@ -104,9 +105,9 @@ const FarmerDashboard = () => {
 
       {/* Account Settings Section */}
       <section id="account-settings" className="mb-8">
-        <h2 className="text-2xl font-bold mb-4">Account Settings</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-4">Account Settings</h2>
         <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h3 className="text-xl font-semibold mb-4">Profile Management</h3>
+          <h3 className="text-lg md:text-xl font-semibold mb-4">Profile Management</h3>
           <p>Name: {farmerName}</p>
           <p>Email: vinay.rai@example.com</p>
           <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded mt-4 mr-2">Edit Profile</button>
