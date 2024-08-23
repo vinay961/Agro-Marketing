@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { post } from '../../services/Api.jsx';
 
 const AddProduct = () => {
   const [productName, setProductName] = useState('');
@@ -12,21 +13,32 @@ const AddProduct = () => {
     setImage(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Simulate form submission
-    setTimeout(() => {
-      alert('Product added successfully!');
-      setIsSubmitting(false);
-      // Clear form fields
-      setProductName('');
-      setDescription('');
-      setCategory('');
-      setPrice('');
-      setImage(null);
-    }, 1000);
+    const registerData = {
+      productName,
+      productDesc:description,
+      category,
+      price,
+      productImage:image
+    }
+    try {
+      const response = await post('/products/registerproduct',registerData);
+      console.log('Registration successful:', response.data);
+      setTimeout(() => {
+        alert('Product added successfully!');
+        setIsSubmitting(false);
+        setProductName('');
+        setDescription('');
+        setCategory('');
+        setPrice('');
+        setImage(null);
+      }, 1000);
+    } catch (error) {
+      alert('Registration Failed')
+      setIsSubmitting(false)
+    }
   };
 
   return (

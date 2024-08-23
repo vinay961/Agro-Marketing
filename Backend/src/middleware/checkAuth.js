@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken'
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { User } from '../models/user.model.js';
+import { User } from '../model/user.model.js';
 
 export const verifyJWT = asyncHandler(async(req,res,next) => {
     try {
-        // console.log(req.cookies)
+        console.log(req.cookies)
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ","")  // ?. --> optional chaining operator it ensure that code doesn't throw error if something is undefined or null.
 
         if(!token){

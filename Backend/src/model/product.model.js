@@ -21,6 +21,10 @@ const productSchema = new Schema({
     productImage:{
         type:String,
         required:[true,"Product image is required."]
+    },
+    user:{
+        type:Schema.Types.ObjectId,
+        ref:"User"
     }
 },{timestamps:true})
 

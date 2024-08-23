@@ -2,11 +2,23 @@ import axios from 'axios';
 
 // Set up a base URL for your API requests
 const api = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('loggedInUser.accessToken'); // Assuming you store the token in localStorage
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Function to send a GET request
 export const get = async (endpoint, params = {}) => {
