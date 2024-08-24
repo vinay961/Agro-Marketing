@@ -32,9 +32,15 @@ export const get = async (endpoint, params = {}) => {
 };
 
 // Function to send a POST request
-export const post = async (endpoint, data) => {
+export const post = async (endpoint, data, isFileUpload = false) => {
   try {
-    const response = await api.post(endpoint, data);
+    let config = {};
+    if(isFileUpload){
+      config.headers = {
+        'Content-Type': 'multipart/form-data',
+      };
+    }
+    const response = await api.post(endpoint, data, config);
     return response.data;
   } catch (error) {
     console.error('POST request failed:', error);

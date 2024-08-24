@@ -6,7 +6,7 @@ const AddProduct = () => {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [price, setPrice] = useState('');
-  const [image, setImage] = useState(null);
+  const [productImage, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e) => {
@@ -16,15 +16,16 @@ const AddProduct = () => {
   const handleSubmit = async(e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const registerData = {
-      productName,
-      productDesc:description,
-      category,
-      price,
-      productImage:image
+    const formData = new FormData();
+    formData.append('productName', productName);
+    formData.append('productDesc', description);
+    formData.append('category', category);
+    formData.append('price', price);
+    if (productImage) {
+      formData.append('productImage', productImage);
     }
     try {
-      const response = await post('/products/registerproduct',registerData);
+      const response = await post('/products/registerproduct',formData,true);
       console.log('Registration successful:', response.data);
       setTimeout(() => {
         alert('Product added successfully!');
@@ -50,6 +51,7 @@ const AddProduct = () => {
           <input
             type="text"
             id="productName"
+            name="productName"
             value={productName}
             onChange={(e) => setProductName(e.target.value)}
             className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
@@ -61,6 +63,7 @@ const AddProduct = () => {
           <label htmlFor="description" className="block text-lg font-medium text-gray-700 mb-2">Description</label>
           <textarea
             id="description"
+            name="productDesc"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
@@ -73,6 +76,7 @@ const AddProduct = () => {
           <label htmlFor="category" className="block text-lg font-medium text-gray-700 mb-2">Category</label>
           <select
             id="category"
+            name="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
@@ -90,6 +94,7 @@ const AddProduct = () => {
           <input
             type="number"
             id="price"
+            name="price"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
@@ -101,7 +106,8 @@ const AddProduct = () => {
           <label htmlFor="image" className="block text-lg font-medium text-gray-700 mb-2">Product Image</label>
           <input
             type="file"
-            id="image"
+            id="productImage"
+            name="productImage"
             onChange={handleImageChange}
             className="w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
             accept="image/*"

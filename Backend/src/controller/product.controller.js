@@ -13,6 +13,10 @@ const registerProduct = asyncHandler(async(req,res) => {
             throw new ApiError(401,"All entries are needed.")
         }
         const localFilePath = req.file?.path;
+        console.log(localFilePath);
+        if(!localFilePath){
+            throw new ApiError(400,"Image file/path is not founded.")
+        }
         const productImage = await uploadOnCloudinary(localFilePath);
         const product = await Product.create({
             productName,

@@ -26,7 +26,11 @@ function Register() {
 
     try {
       // Send the registration request to the backend
-      const response = await post('/users/register', registrationData);
+      const response = await post('/users/register', registrationData,{
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       console.log('Registration successful:', response.data);
       
       // Show success message and clear error message
