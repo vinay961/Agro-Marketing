@@ -9,8 +9,8 @@ import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
 const registerProduct = asyncHandler(async(req,res) => {
     try {
-        const {productName,productDesc,category,price} = req.body;
-        if([productName,productDesc,category,price].some((field)=>field?.trim() == "")){
+        const {productName,productDesc,category,price,quantity} = req.body;
+        if([productName,productDesc,category,price,quantity].some((field)=>field?.trim() == "")){
             throw new ApiError(401,"All entries are needed.")
         }
         const localFilePath = req.file?.path;
@@ -24,6 +24,7 @@ const registerProduct = asyncHandler(async(req,res) => {
             productDesc,
             category,
             price,
+            quantity,
             productImage:productImage?.url || null,
             user: req.user._id
         })
@@ -37,7 +38,7 @@ const registerProduct = asyncHandler(async(req,res) => {
 })
 
 const editProduct = asyncHandler(async(req,res) => {
-    const {productName,productDesc,category,price} = req.body;
+    const {productName,productDesc,category,price,quantity} = req.body;
     try {
         const productId = req.params.id;
         if(!productId){
@@ -62,10 +63,13 @@ const editProduct = asyncHandler(async(req,res) => {
         if(price){
             product.price = price;
         }
+        if(quantity){
+            product.quantity = quantity;
+        }
         await product.save({validateBeforeSave:false})
         res
             .status(201)
-            .json(new ApiResponse(201,{},"Product Updated successfully."))
+            .json(new ApiResponse(201,{product},"Product Updated successfully."))
     } catch (error) {
         console.log(error || "Error found while editing product."); 
     }
@@ -89,9 +93,7 @@ const getUserProduct = asyncHandler(async (req, res) => {
         if (!products) {
             throw new ApiError(404, "No products found for this user.");
         }
-        res
-            .status(200)
-            .json(new ApiResponse(200, { products }, "User products fetched successfully."));
+        res.status(200).json(new ApiResponse(200, products, "User products fetched successfully."));
     } catch (error) {
         console.log(error);
         res
@@ -106,21 +108,48 @@ const deleteProduct = asyncHandler(async(req,res) =>{
         if(!productId){
             throw new ApiError(301,"Product Id not found.");
         }
-        await findByIdAndDelete(productId)
+        await Product.findByIdAndDelete(productId)
         res
             .status(201)
             .status(201,{},"Product Successfully deleted.")
     } catch (error) {
+        console.log(error)
         res
             .status(error.statusCode || 500)
-            .json(new ApiResponse(error.statusCode || 500, null, message || "Server Error"));
+            .json(new ApiResponse(error.statusCode || 500, {}, message || "Server Error"));
     }
 })
+
+const getSpecificProduct = asyncHandler(async (req, res) => {
+    try {
+        const productId = req.params.id;
+
+        if (!productId) {
+            throw new ApiError(400, "Product ID not provided.");
+        }
+
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            throw new ApiError(404, "Product not found.");
+        }
+
+        res.status(200).json(new ApiResponse(200,{product},"Product successfully fetched."));
+    } catch (error) {
+        console.error(error);
+        res.status(error.statusCode || 500).json({
+            success: false,
+            message: error.message || "Server Error"
+        });
+    }
+});
+
 
 export {
     registerProduct,
     editProduct,
     getProduct,
     getUserProduct,
-    deleteProduct
+    deleteProduct,
+    getSpecificProduct
 }

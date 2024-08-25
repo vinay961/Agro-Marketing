@@ -3,6 +3,7 @@ import {
     deleteProduct,
     editProduct,
     getProduct,
+    getSpecificProduct,
     getUserProduct,
     registerProduct 
 } from '../controller/product.controller.js'
@@ -14,7 +15,8 @@ const router = Router()
 router.route('/registerproduct').post(verifyJWT, upload.single("productImage"), registerProduct)
 router.route('/getuserproduct').get(verifyJWT,getUserProduct)
 router.route('/getproduct').get(getProduct)
-router.route('/editproduct').put(verifyJWT,upload.single("productImage"), editProduct)
+router.route('/editproduct/:id').put(verifyJWT,upload.single("productImage"), editProduct)
 router.route('/deleteproduct/:id').delete(verifyJWT,deleteProduct)
+router.route('/getspecificproduct/:id').get(verifyJWT, getSpecificProduct)
 
 export default router

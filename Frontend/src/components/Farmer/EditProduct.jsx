@@ -1,26 +1,41 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { get, put } from '../../services/Api.jsx';
 
-const EditProduct = ({ productId }) => {
+const EditProduct = () => {
+  const location = useLocation();
+  const { productId } = location.state || {}; 
+
   const [productName, setProductName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [price, setPrice] = useState('');
-  const [image, setImage] = useState(null);
+  const [quantity, setQuantity] = useState('');
+  const [productImage, setImage] = useState(null);
   const [existingImage, setExistingImage] = useState('');
+  const [initialProduct, setInitialProduct] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    // Fetch product details based on productId
+    if (!productId) return; 
+
     const fetchProductDetails = async () => {
-      // Replace with your API call
-      const response = await fetch(`/api/products/${productId}`);
-      const data = await response.json();
-      
-      setProductName(data.productName);
-      setDescription(data.description);
-      setCategory(data.category);
-      setPrice(data.price);
-      setExistingImage(data.imageUrl);
+      try {
+        const response = await get(`/products/getspecificproduct/${productId}`);
+        const { product } = response.data; 
+
+        setProductName(product.productName);
+        setDescription(product.productDesc);
+        setCategory(product.category);
+        setPrice(product.price);
+        setQuantity(product.quantity); 
+        setExistingImage(product.productImage);
+
+        setInitialProduct(product);
+
+      } catch (error) {
+        console.error('Failed to fetch product details:', error);
+      }
     };
 
     fetchProductDetails();
@@ -30,17 +45,41 @@ const EditProduct = ({ productId }) => {
     setImage(e.target.files[0]);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
-      alert('Product updated successfully!');
-      setIsSubmitting(false);
-      // Handle additional logic like redirection here
-    }, 1000);
-  };
+  const updatedFields = {};
+
+  if (productName !== initialProduct.productName) updatedFields.productName = productName;
+  if (description !== initialProduct.productDesc) updatedFields.description = description;
+  if (category !== initialProduct.category) updatedFields.category = category;
+  if (price !== initialProduct.price) updatedFields.price = price;
+  if (quantity !== initialProduct.quantity) updatedFields.quantity = quantity;
+
+  const url = `/products/editproduct/${productId}`;
+
+  try {
+    if (productImage) {
+      const formData = new FormData();
+      Object.keys(updatedFields).forEach(key => {
+        formData.append(key, updatedFields[key]);
+      });
+      formData.append('productImage', productImage);
+
+      await put(url, formData, true);
+    } else {
+      await put(url, updatedFields);
+    }
+
+    alert('Product updated successfully!');
+  } catch (error) {
+    console.error('Failed to update product:', error);
+    alert('Failed to update product.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="container mx-auto px-6 py-12">
@@ -65,7 +104,7 @@ const EditProduct = ({ productId }) => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
-            rows="5"
+            rows="3"
             placeholder="Enter product description"
             required
           ></textarea>
@@ -97,6 +136,19 @@ const EditProduct = ({ productId }) => {
             placeholder="Enter product price"
             required
           />
+          <p className="text-sm text-gray-600 mt-1">Please enter the price for per kg or per dozen.</p>
+        </div>
+        <div className="mb-6">
+          <label htmlFor="quantity" className="block text-lg font-medium text-gray-700 mb-2">Quantity</label>
+          <input
+            type="number"
+            id="quantity"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
+            placeholder="Enter product quantity in kg or dozen"
+            required
+          />
         </div>
         <div className="mb-6">
           <label htmlFor="image" className="block text-lg font-medium text-gray-700 mb-2">Product Image</label>
@@ -107,7 +159,8 @@ const EditProduct = ({ productId }) => {
           )}
           <input
             type="file"
-            id="image"
+            id="productImage"
+            name="productImage"
             onChange={handleImageChange}
             className="w-full border border-gray-300 rounded-lg p-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
             accept="image/*"

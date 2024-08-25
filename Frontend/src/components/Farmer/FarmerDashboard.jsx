@@ -1,16 +1,46 @@
-import React from 'react';
-import {useNavigate} from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { get, del } from '../../services/Api.jsx';
 
 const FarmerDashboard = () => {
-  const farmerName = "Vinay Rai";
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  // Demo data for products
-  const products = [
-    { id: 1, name: 'Organic Tomatoes', price: '30/- per kg', stock: 100 },
-    { id: 2, name: 'Golden Apples', price: '110/- per kg', stock: 50 },
-    { id: 3, name: 'Organic Spinach', price: '39/- per bunch', stock: 75 },
-  ];
+  const [farmerName, setFarmerName] = useState('');
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    const storedFarmer = JSON.parse(localStorage.getItem('loggedInUser'));
+    if (storedFarmer && storedFarmer.name) {
+      setFarmerName(storedFarmer.name);
+    }
+
+    // Fetch products
+    const fetchProducts = async () => {
+      try {
+        const response = await get('/products/getuserproduct');
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const deleteProduct = async (productId) => {
+    try {
+      await del(`/products/deleteproduct/${productId}`);
+      alert("Product Removed Successfully.");
+      // Remove the deleted product from the local state
+      setProducts(products.filter(product => product._id !== productId));
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  };
+
+  const capitalizeName = (name) => {
+    if (!name) return '';
+    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+  };
 
   // Demo data for orders
   const orders = [
@@ -23,7 +53,7 @@ const FarmerDashboard = () => {
     <div className="p-4 md:p-8">
       {/* Header Section */}
       <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
-        <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-0">Welcome, {farmerName}!</h1>
+        <h1 className="text-2xl md:text-4xl font-bold mb-4 md:mb-0">Welcome, {capitalizeName(farmerName)}!</h1>
         <nav>
           <ul className="flex flex-wrap md:space-x-4 space-x-2 font-bold">
             <li><a href="#dashboard" className="text-blue-500 hover:underline">Dashboard</a></li>
@@ -57,18 +87,22 @@ const FarmerDashboard = () => {
       {/* Product Management Section */}
       <section id="product-management" className="mb-8">
         <h2 className="text-xl md:text-2xl font-bold mb-4">Product Management</h2>
-        <button onClick={()=>{navigate('/addproduct')}} className="bg-green-500 text-white font-bold py-2 px-4 rounded mb-4">Add New Product</button>
+        <button onClick={() => { navigate('/addproduct') }} className="bg-green-500 text-white font-bold py-2 px-4 rounded mb-4">Add New Product</button>
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h3 className="text-lg md:text-xl font-semibold mb-4">Your Products</h3>
-          <ul>
-            {products.map(product => (
-              <li key={product.id} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
-                <span>{product.name}</span>
-                <span>{product.price}</span>
-                <span>Stock: {product.stock}</span>
-                <div className="mt-2 md:mt-0">
-                  <button onClick={()=>{navigate('/editproduct')}} className="bg-blue-500 text-white font-bold py-1 px-3 rounded mr-2">Edit</button>
-                  <button className="bg-red-500 text-white font-bold py-1 px-3 rounded">Delete</button>
+          <ul className="space-y-2">
+            {products.map((product, index) => (
+              <li key={product._id} className="flex flex-col md:flex-row items-start md:items-center bg-white p-4 rounded-lg shadow-lg">
+                <span className="font-semibold text-lg">{index + 1}. </span>
+                <span className="ml-2 font-bold">Name:</span> 
+                <span className="ml-2">{product.productName}</span>
+                <span className="ml-2 font-bold">Price:</span>
+                <span className="ml-2">₹{product.price}</span>
+                <span className="ml-2 font-bold">Stock:</span>
+                <span className="ml-2">{product.quantity} </span>
+                <div className="mt-2 md:mt-0 ml-auto flex space-x-2">
+                  <button onClick={() => { navigate('/editproduct', { state: { productId: product._id } }) }} className="bg-blue-500 text-white font-bold py-1 px-3 rounded">Edit</button>
+                  <button onClick={() => deleteProduct(product._id)} className="bg-red-500 text-white font-bold py-1 px-3 rounded">Delete</button>
                 </div>
               </li>
             ))}

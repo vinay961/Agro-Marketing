@@ -18,6 +18,9 @@ const productSchema = new Schema({
         type:String,
         required:[true,"Price is required."]
     },
+    quantity:{
+        type:String,
+    },
     productImage:{
         type:String,
         required:[true,"Product image is required."]

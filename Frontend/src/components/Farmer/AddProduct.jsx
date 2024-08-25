@@ -6,6 +6,7 @@ const AddProduct = () => {
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
   const [price, setPrice] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [productImage, setImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -13,7 +14,7 @@ const AddProduct = () => {
     setImage(e.target.files[0]);
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     const formData = new FormData();
@@ -21,11 +22,12 @@ const AddProduct = () => {
     formData.append('productDesc', description);
     formData.append('category', category);
     formData.append('price', price);
+    formData.append('quantity', quantity);
     if (productImage) {
       formData.append('productImage', productImage);
     }
     try {
-      const response = await post('/products/registerproduct',formData,true);
+      const response = await post('/products/registerproduct', formData, true);
       console.log('Registration successful:', response.data);
       setTimeout(() => {
         alert('Product added successfully!');
@@ -34,11 +36,12 @@ const AddProduct = () => {
         setDescription('');
         setCategory('');
         setPrice('');
+        setQuantity('');
         setImage(null);
       }, 1000);
     } catch (error) {
-      alert('Registration Failed')
-      setIsSubmitting(false)
+      alert('Registration Failed');
+      setIsSubmitting(false);
     }
   };
 
@@ -101,9 +104,23 @@ const AddProduct = () => {
             placeholder="Enter product price"
             required
           />
+          <p className="text-sm text-gray-600 mt-1">Please enter the price per kg or per dozen.</p>
         </div>
         <div className="mb-6">
-          <label htmlFor="image" className="block text-lg font-medium text-gray-700 mb-2">Product Image</label>
+          <label htmlFor="quantity" className="block text-lg font-medium text-gray-700 mb-2">Quantity</label>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-150 ease-in-out"
+            placeholder="Enter product quantity in kg or dozen"
+            required
+          />
+        </div>
+        <div className="mb-6">
+          <label htmlFor="productImage" className="block text-lg font-medium text-gray-700 mb-2">Product Image</label>
           <input
             type="file"
             id="productImage"
