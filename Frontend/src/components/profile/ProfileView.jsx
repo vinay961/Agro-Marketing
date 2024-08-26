@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProfileView = () => {
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
     name: '',
     email: '',
@@ -36,10 +38,10 @@ const ProfileView = () => {
         </div>
 
         <div className="mt-4">
-          <button className="w-full bg-blue-500 text-white py-2 rounded-lg shadow hover:bg-blue-600 transition duration-200">
+          <button onClick={()=>navigate('/editprofile')} className="w-full bg-blue-500 text-white py-2 rounded-lg shadow hover:bg-blue-600 transition duration-200">
             Edit Profile
           </button>
-          <button className="w-full bg-red-500 text-white py-2 rounded-lg shadow mt-3 hover:bg-red-600 transition duration-200">
+          <button onClick={()=>navigate('/changepassword')} className="w-full bg-red-500 text-white py-2 rounded-lg shadow mt-3 hover:bg-red-600 transition duration-200">
             Change Password
           </button>
         </div>

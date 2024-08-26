@@ -13,6 +13,6 @@ const router = Router()
 router.route('/register').post(registerUser)
 router.route('/login').post(login)
 router.route('/editprofile').put(verifyJWT, editUser)
-router.route('/changepassword').patch(verifyJWT, changePassword)
+router.route('/changepassword').post(verifyJWT, changePassword)
 
 export default router

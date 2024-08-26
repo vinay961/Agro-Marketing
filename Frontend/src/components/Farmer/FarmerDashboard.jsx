@@ -144,8 +144,8 @@ const FarmerDashboard = () => {
           <h3 className="text-lg md:text-xl font-semibold mb-4">Profile Management</h3>
           <p>Name: {farmerName}</p>
           <p>Email: vinay.rai@example.com</p>
-          <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded mt-4 mr-2">Edit Profile</button>
-          <button className="bg-red-500 text-white font-bold py-2 px-4 rounded mt-4">Change Password</button>
+          <button onClick={()=>navigate('/editprofile')} className="bg-blue-500 text-white font-bold py-2 px-4 rounded mt-4 mr-2">Edit Profile</button>
+          <button onClick={()=>navigate('/changepassword')} className="bg-red-500 text-white font-bold py-2 px-4 rounded mt-4">Change Password</button>
         </div>
       </section>
 

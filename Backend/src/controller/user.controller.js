@@ -109,7 +109,7 @@ const editUser = asyncHandler(async(req,res)=>{
         throw new ApiError(404,"User not found.")
     }
     try {
-        const user = await User.findById({user:userId})
+        const user = await User.findById(userId)
         if(!user){
             throw new ApiError(404,"User not found.")
         }
@@ -137,16 +137,19 @@ const editUser = asyncHandler(async(req,res)=>{
 })
 
 const changePassword = asyncHandler(async(req,res) =>{
-    const user = req.user;
-    if(!user){
+    const userId = req.user?._id;
+    if(!userId){
         throw new ApiError(404,"User not found.")
     }
     try {
-        const user = await User.findById(user?._id);
+        const user = await User.findById(userId);
         
-        const {newPassword,oldPassword} = req.body;
-        const result = await user.isPasswordCorrect(oldPassword);
-        if(!result){
+        const {newPassword,currentPassword} = req.body;
+        if(!newPassword || !currentPassword){
+            throw new ApiError(404,"Password not received.")
+        }
+        const result = await user.isPasswordCorrect(currentPassword);
+        if(result == false){
             throw new ApiError(401,"Old Password is not correct.")
         }
         user.password = newPassword;
