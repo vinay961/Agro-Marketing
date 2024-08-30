@@ -80,7 +80,7 @@ const getProduct = asyncHandler(async(req,res) => {
         const products = await Product.find();
         res
             .status(200)
-            .json(new ApiResponse(200,{products},"Products fetched successfully."));
+            .json(new ApiResponse(200,products,"Products fetched successfully."));
     } catch (error) {
         throw new ApiError(400,"Error!! Products searching..")
     }

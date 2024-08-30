@@ -40,7 +40,7 @@ userSchema.pre("save",async function(next){
 
 // password checker
 userSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password,this.password)
+    return bcrypt.compare(password,this.password)
 }
 
 // jwt token generator

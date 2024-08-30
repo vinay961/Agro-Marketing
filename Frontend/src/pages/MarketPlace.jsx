@@ -1,34 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { get } from '../services/Api.jsx';
 
-const demoProducts = [
-  { id: 1, name: 'Organic Tomatoes', price: '₹30/- per kg', image: 'https://example.com/product-image1.jpg', rating: 4, reviews: 85, category: 'Vegetables' },
-  { id: 2, name: 'Golden Apples', price: '₹110/- per kg', image: 'https://example.com/product-image2.jpg', rating: 4, reviews: 75, category: 'Fruits' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  { id: 3, name: 'Organic Spinach', price: '₹39/- per bunch', image: 'https://example.com/product-image3.jpg', rating: 5, reviews: 45, category: 'Vegetables' },
-  // Add more demo products here
-];
-
-const ITEMS_PER_PAGE = 8; // Number of products per page
+const ITEMS_PER_PAGE = 8; 
 
 const Marketplace = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const navigate = useNavigate()
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await get('/products/getproduct');
+        console.log('Fetched products:', response.data); 
+        setProducts(response.data);
+      } catch (err) {
+        setError('Failed to fetch products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   // Filter products based on search term and selected category
-  const filteredProducts = demoProducts.filter((product) => {
+  const filteredProducts = products.filter((product) => {
+    const productName = product.productName ? product.productName.toLowerCase() : '';
+    const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
     return (
       (selectedCategory === 'All' || product.category === selectedCategory) &&
-      product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      productName.includes(lowerCaseSearchTerm)
     );
   });
 
@@ -45,6 +54,9 @@ const Marketplace = () => {
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
+
+  if (loading) return <p className="text-center">Loading...</p>;
+  if (error) return <p className="text-center text-red-500">{error}</p>;
 
   return (
     <div className="container mx-auto py-8">
@@ -69,7 +81,7 @@ const Marketplace = () => {
           <option value="All">All Categories</option>
           <option value="Vegetables">Vegetables</option>
           <option value="Fruits">Fruits</option>
-          {/* Add more categories here */}
+          <option value="Dairy">Dairy</option>
         </select>
       </div>
 
@@ -79,18 +91,18 @@ const Marketplace = () => {
           currentProducts.map((product) => (
             <div key={product.id} className="bg-white p-4 rounded-lg shadow-lg">
               <img
-                src={product.image}
-                alt={product.name}
+                src={product.productImage}
+                alt={product.productName}
                 className="w-full h-48 object-cover mb-4"
               />
-              <h3 className="text-xl font-bold mb-2">{product.name}</h3>
-              <p className="text-lg font-semibold text-green-500 mb-2">{product.price}</p>
+              <h3 className="text-xl font-bold mb-2">{product.productName}</h3>
+              <p className="text-lg font-semibold text-green-500 mb-2">₹{product.price} /-</p>
               <div className="flex items-center mb-2">
-                <span className="text-yellow-500">{'★'.repeat(product.rating)}</span>
-                <span className="ml-2 text-gray-500">({product.reviews} reviews)</span>
+                <span className="text-yellow-500">{"★★★★☆"}</span>
+                <span className="ml-2 text-gray-500">({20} reviews)</span>
               </div>
-              <p className="text-sm text-gray-500 mb-4">Category: {product.category}</p>
-              <button onClick={()=>{navigate('/productdetails')}} className="bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2">
+              <p className="text-sm text-gray-500 mb-4">Category: {(product.category).toUpperCase()} </p>
+              <button onClick={() => navigate('/productdetails')} className="bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2">
                 View Details
               </button>
               <button className="bg-green-500 text-white font-bold py-2 px-4 rounded">
