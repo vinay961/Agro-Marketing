@@ -12,6 +12,7 @@ import EditProduct from './components/Farmer/EditProduct.jsx';
 import ProfileView from './components/profile/ProfileView.jsx';
 import EditProfile from './components/profile/EditProfile.jsx';
 import ChangePassword from './components/profile/ChangePassword.jsx';
+import CartPage from './pages/Cart.jsx';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -64,6 +65,7 @@ function App() {
         <Route path="/profile" element={<ProfileView />} />
         <Route path="/editprofile" element={<EditProfile />} />
         <Route path="/changepassword" element={<ChangePassword />} />
+        <Route path="/cart" element={<CartPage />} />
       </Routes>
     </Router>
   );

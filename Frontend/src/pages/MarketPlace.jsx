@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get } from '../services/Api.jsx';
 
-const ITEMS_PER_PAGE = 8; 
+const ITEMS_PER_PAGE = 8;
 
 const Marketplace = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -11,6 +11,7 @@ const Marketplace = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [cart, setCart] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,7 +31,36 @@ const Marketplace = () => {
     fetchProducts();
   }, []);
 
-  // Filter products based on search term and selected category
+  const addToCart = (productId) => {
+    setCart((prevCart) => ({
+      ...prevCart,
+      [productId]: (prevCart[productId] || 0) + 1,
+    }));
+    console.log(cart);
+  };
+
+  const incrementQuantity = (productId) => {
+    setCart((prevCart) => ({
+      ...prevCart,
+      [productId]: prevCart[productId] + 1,
+    }));
+  };
+
+  const decrementQuantity = (productId) => {
+    setCart((prevCart) => {
+      const newCart = { ...prevCart };
+      if (newCart[productId] > 1) {
+        newCart[productId] -= 1;
+      } else {
+        delete newCart[productId];
+      }
+      return newCart;
+    });
+  };
+  const handleViewCart = () => {
+    navigate('/cart', { state: { cart, products } });
+  };
+
   const filteredProducts = products.filter((product) => {
     const productName = product.productName ? product.productName.toLowerCase() : '';
     const lowerCaseSearchTerm = searchTerm.toLowerCase();
@@ -41,16 +71,13 @@ const Marketplace = () => {
     );
   });
 
-  // Calculate total pages based on filtered products
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
 
-  // Get current page products based on filtered products
   const currentProducts = filteredProducts.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  // Handle page change
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
@@ -62,7 +89,6 @@ const Marketplace = () => {
     <div className="container mx-auto py-8">
       <h1 className="text-4xl font-bold text-center mb-8">Explore Our Marketplace</h1>
       
-      {/* Search Bar */}
       <div className="flex justify-between mb-8">
         <input
           type="text"
@@ -72,7 +98,6 @@ const Marketplace = () => {
           className="border border-gray-300 p-2 rounded w-full md:w-1/3"
         />
         
-        {/* Filter by Category */}
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -85,11 +110,10 @@ const Marketplace = () => {
         </select>
       </div>
 
-      {/* Product Listings */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {currentProducts.length > 0 ? (
           currentProducts.map((product) => (
-            <div key={product.id} className="bg-white p-4 rounded-lg shadow-lg">
+            <div key={product._id} className="bg-white p-4 rounded-lg shadow-lg">
               <img
                 src={product.productImage}
                 alt={product.productName}
@@ -101,13 +125,36 @@ const Marketplace = () => {
                 <span className="text-yellow-500">{"★★★★☆"}</span>
                 <span className="ml-2 text-gray-500">({20} reviews)</span>
               </div>
-              <p className="text-sm text-gray-500 mb-4">Category: {(product.category).toUpperCase()} </p>
+              <p className="text-sm text-gray-500 mb-4">Category: {(product.category).toUpperCase()}</p>
               <button onClick={() => navigate('/productdetails')} className="bg-blue-500 text-white font-bold py-2 px-4 rounded mr-2">
                 View Details
               </button>
-              <button className="bg-green-500 text-white font-bold py-2 px-4 rounded">
-                Add to Cart
-              </button>
+              <div className="mt-2 inline-flex items-center">
+                {cart[product._id] ? (
+                  <div className="inline-flex items-center space-x-2 p-1 bg-green-500 border-2 border-green-500 rounded">
+                    <button
+                      onClick={() => decrementQuantity(product._id)}
+                      className="bg-gray-200 text-gray-800 py-1 px-2 rounded"
+                    >
+                      -
+                    </button>
+                    <span>{cart[product._id]}</span>
+                    <button
+                      onClick={() => incrementQuantity(product._id)}
+                      className="bg-gray-200 text-gray-800 py-1 px-2 rounded"
+                    >
+                      +
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => addToCart(product._id)}
+                    className="bg-green-500 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Add to Cart
+                  </button>
+                )}
+              </div>
             </div>
           ))
         ) : (
@@ -115,7 +162,11 @@ const Marketplace = () => {
         )}
       </div>
 
-      {/* Pagination */}
+      <button onClick={handleViewCart} className="bg-green-500 text-white font-bold py-2 px-4 rounded">
+        View Cart
+      </button>
+
+
       <div className="flex justify-center mt-8">
         {Array.from({ length: totalPages }, (_, index) => (
           <button
