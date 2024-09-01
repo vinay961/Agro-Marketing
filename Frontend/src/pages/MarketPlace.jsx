@@ -15,12 +15,16 @@ const Marketplace = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem('cart')) || {};
+    setCart(storedCart);
+    console.log(cart);
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
         const response = await get('/products/getproduct');
-        console.log('Fetched products:', response.data); 
         setProducts(response.data);
+        localStorage.setItem('products', JSON.stringify(response.data));
       } catch (err) {
         setError('Failed to fetch products');
       } finally {
@@ -31,32 +35,43 @@ const Marketplace = () => {
     fetchProducts();
   }, []);
 
-  const addToCart = (productId) => {
-    setCart((prevCart) => ({
-      ...prevCart,
-      [productId]: (prevCart[productId] || 0) + 1,
-    }));
+  useEffect(() => {
     console.log(cart);
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
+  const addToCart = (productId) => {
+    setCart((prevCart) => {
+      const updatedCart = {
+        ...prevCart,
+        [productId]: (prevCart[productId] || 0) + 1,
+      };
+      return updatedCart;
+    });
   };
 
   const incrementQuantity = (productId) => {
-    setCart((prevCart) => ({
-      ...prevCart,
-      [productId]: prevCart[productId] + 1,
-    }));
+    setCart((prevCart) => {
+      const updatedCart = {
+        ...prevCart,
+        [productId]: prevCart[productId] + 1,
+      };
+      return updatedCart;
+    });
   };
 
   const decrementQuantity = (productId) => {
     setCart((prevCart) => {
-      const newCart = { ...prevCart };
-      if (newCart[productId] > 1) {
-        newCart[productId] -= 1;
+      const updatedCart = { ...prevCart };
+      if (updatedCart[productId] > 1) {
+        updatedCart[productId] -= 1;
       } else {
-        delete newCart[productId];
+        delete updatedCart[productId];
       }
-      return newCart;
+      return updatedCart;
     });
   };
+
   const handleViewCart = () => {
     navigate('/cart', { state: { cart, products } });
   };
@@ -165,7 +180,6 @@ const Marketplace = () => {
       <button onClick={handleViewCart} className="bg-green-500 text-white font-bold py-2 px-4 rounded">
         View Cart
       </button>
-
 
       <div className="flex justify-center mt-8">
         {Array.from({ length: totalPages }, (_, index) => (
