@@ -69,13 +69,13 @@ const Home = () => {
           {products.length > 0 ? (
             products.map((product) => (
               <div key={product.id} className="bg-white p-6 rounded-lg shadow-lg flex-shrink-0 w-96">
-                <img src={product.productImage} alt={product.productName} className="w-full h-60 object-cover mb-4" />
+                <img src={product.productImage} alt={product.productName} className="w-full h-60 object-cover mb-4 border border-black-300 rounded" style={{ boxShadow: '0 10px 15px -3px rgba(0, 0, 1, 0.1)' }} />
                 <h3 className="text-xl font-bold mb-2">{product.productName}</h3>
                 <p className="text-lg font-semibold text-green-500 mb-2">{product.price}/- per kg</p>
                 
                 <div className="flex items-center mb-4">
                   <span className="text-yellow-500">★★★★☆</span>
-                  <span className="ml-2 text-gray-500">({product.reviews} reviews)</span>
+                  <span className="ml-2 text-gray-500">(40 reviews)</span>
                 </div>
                 
                 <p className="text-sm text-gray-500 mb-4">Category: {product.category}</p>

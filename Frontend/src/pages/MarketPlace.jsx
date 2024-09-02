@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { get } from '../services/Api.jsx';
+import { GlobalStateContext } from '../GlobalStateContext.jsx';
+import { FiShoppingCart } from 'react-icons/fi';
 
 const ITEMS_PER_PAGE = 8;
 
@@ -8,17 +10,13 @@ const Marketplace = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [cart, setCart] = useState({});
+
+  const { cart, setCart, products, setProducts } = useContext(GlobalStateContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem('cart')) || {};
-    setCart(storedCart);
-    console.log(cart);
-
     const fetchProducts = async () => {
       try {
         setLoading(true);
@@ -33,31 +31,24 @@ const Marketplace = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [setProducts]);
 
   useEffect(() => {
-    console.log(cart);
     localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
   const addToCart = (productId) => {
-    setCart((prevCart) => {
-      const updatedCart = {
-        ...prevCart,
-        [productId]: (prevCart[productId] || 0) + 1,
-      };
-      return updatedCart;
-    });
+    setCart((prevCart) => ({
+      ...prevCart,
+      [productId]: (prevCart[productId] || 0) + 1,
+    }));
   };
 
   const incrementQuantity = (productId) => {
-    setCart((prevCart) => {
-      const updatedCart = {
-        ...prevCart,
-        [productId]: prevCart[productId] + 1,
-      };
-      return updatedCart;
-    });
+    setCart((prevCart) => ({
+      ...prevCart,
+      [productId]: prevCart[productId] + 1,
+    }));
   };
 
   const decrementQuantity = (productId) => {
@@ -73,7 +64,7 @@ const Marketplace = () => {
   };
 
   const handleViewCart = () => {
-    navigate('/cart', { state: { cart, products } });
+    navigate('/cart');
   };
 
   const filteredProducts = products.filter((product) => {
@@ -100,10 +91,12 @@ const Marketplace = () => {
   if (loading) return <p className="text-center">Loading...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
 
+  const totalItemsInCart = Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
+
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-4xl font-bold text-center mb-8">Explore Our Marketplace</h1>
-      
+
       <div className="flex justify-between mb-8">
         <input
           type="text"
@@ -112,7 +105,7 @@ const Marketplace = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border border-gray-300 p-2 rounded w-full md:w-1/3"
         />
-        
+
         <select
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
@@ -132,7 +125,7 @@ const Marketplace = () => {
               <img
                 src={product.productImage}
                 alt={product.productName}
-                className="w-full h-48 object-cover mb-4"
+                className="w-full h-48 object-cover mb-4 border border-black-300 rounded" style={{ boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
               />
               <h3 className="text-xl font-bold mb-2">{product.productName}</h3>
               <p className="text-lg font-semibold text-green-500 mb-2">₹{product.price} /-</p>
@@ -177,8 +170,12 @@ const Marketplace = () => {
         )}
       </div>
 
-      <button onClick={handleViewCart} className="bg-green-500 text-white font-bold py-2 px-4 rounded">
-        View Cart
+      <button
+        onClick={handleViewCart}
+        className="fixed bottom-8 right-8 bg-green-500 text-white font-bold py-3 px-6 rounded-full flex items-center shadow-lg hover:bg-green-600 transition-transform transform hover:scale-105"
+      >
+        <FiShoppingCart className="mr-2" size={24} />
+        {totalItemsInCart > 0 ? `View Cart (${totalItemsInCart})` : 'View Cart'}
       </button>
 
       <div className="flex justify-center mt-8">
