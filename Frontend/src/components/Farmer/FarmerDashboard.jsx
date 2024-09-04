@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext,useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GlobalStateContext } from '../../GlobalStateContext.jsx';
 import { get, del } from '../../services/Api.jsx';
 
 const FarmerDashboard = () => {
   const navigate = useNavigate();
-
+  const { cart } = useContext(GlobalStateContext);
   const [farmerName, setFarmerName] = useState('');
   const [products, setProducts] = useState([]);
-
   useEffect(() => {
     const storedFarmer = JSON.parse(localStorage.getItem('loggedInUser'));
     if (storedFarmer && storedFarmer.name) {
@@ -26,6 +26,15 @@ const FarmerDashboard = () => {
     fetchProducts();
   }, []);
 
+  const cartItems = Object.keys(cart).map((productId) => {
+    const product = products.find((p) => p._id === productId);
+    return {
+      ...product,
+      quantity: cart[productId],
+    };
+  });
+  console.log(cartItems);
+
   const deleteProduct = async (productId) => {
     try {
       await del(`/products/deleteproduct/${productId}`);
@@ -41,13 +50,6 @@ const FarmerDashboard = () => {
     if (!name) return '';
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   };
-
-  // Demo data for orders
-  const orders = [
-    { id: 1, product: 'Organic Tomatoes', quantity: 10, customer: 'John Doe', status: 'Pending' },
-    { id: 2, product: 'Golden Apples', quantity: 5, customer: 'Jane Doe', status: 'Shipped' },
-    { id: 3, product: 'Organic Spinach', quantity: 15, customer: 'Bob Smith', status: 'Delivered' },
-  ];
 
   return (
     <div className="p-4 md:p-8">
@@ -72,11 +74,11 @@ const FarmerDashboard = () => {
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h2 className="text-lg md:text-xl font-bold">Total Orders</h2>
-          <p className="text-xl md:text-2xl font-semibold">{orders.length}</p>
+          <p className="text-xl md:text-2xl font-semibold">{Object.keys(cart).length}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h2 className="text-lg md:text-xl font-bold">Pending Orders</h2>
-          <p className="text-xl md:text-2xl font-semibold">{orders.filter(order => order.status === 'Pending').length}</p>
+          <p className="text-xl md:text-2xl font-semibold">3</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h2 className="text-lg md:text-xl font-bold">Earnings</h2>
@@ -116,15 +118,14 @@ const FarmerDashboard = () => {
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h3 className="text-lg md:text-xl font-semibold mb-4">Recent Orders</h3>
           <ul>
-            {orders.map(order => (
-              <li key={order.id} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
-                <span>{order.product}</span>
-                <span>Qty: {order.quantity}</span>
-                <span>Customer: {order.customer}</span>
-                <span>Status: {order.status}</span>
-                <button className="bg-yellow-500 text-white font-bold py-1 px-3 rounded mt-2 md:mt-0">Update Status</button>
-              </li>
-            ))}
+            {cartItems.map((item) => (
+                <li key={item._id} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                  <span>{item.productName}</span>
+                  <span>Qty: {item.quantity}</span>
+                  <span>Price: ₹{item.price * item.quantity}</span>
+                </li>
+              ))
+            }
           </ul>
         </div>
       </section>
