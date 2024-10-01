@@ -29,6 +29,7 @@ const FarmerDashboard = () => {
   const cartItems = Object.keys(cart).map((productId) => {
     const product = products.find((p) => p._id === productId);
     return {
+      
       ...product,
       quantity: cart[productId],
     };
