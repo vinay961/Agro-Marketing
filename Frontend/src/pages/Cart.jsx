@@ -5,7 +5,7 @@ import { GlobalStateContext } from '../GlobalStateContext.jsx';
 const CartPage = () => {
   const navigate = useNavigate();
   const { cart, setCart, products } = useContext(GlobalStateContext);
-  const [showPayment, setShowPayment] = useState(false); // Payment step
+  const [showPayment, setShowPayment] = useState(false); 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [cardDetails, setCardDetails] = useState({
     cardNumber: '',
@@ -43,7 +43,7 @@ const CartPage = () => {
     if (!user) {
       navigate('/login');
     } else {
-      setShowPayment(true); // Show payment methods after checkout click
+      setShowPayment(true);
     }
   };
 
@@ -61,7 +61,7 @@ const CartPage = () => {
       }
       console.log('Processing UPI payment:', upiId);
     }
-    navigate('/successpage'); // Navigate after payment
+    navigate('/successpage');
   };
 
   const cartItems = Object.keys(cart).map((productId) => {

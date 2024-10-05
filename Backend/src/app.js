@@ -13,5 +13,7 @@ import userRouter from './router/user.router.js'
 app.use('/users',userRouter)
 import productRouter from './router/product.router.js'
 app.use('/products',productRouter)
+import cartRouter from './router/cart.router.js'
+app.use('/cart',cartRouter)
 
 export {app}
