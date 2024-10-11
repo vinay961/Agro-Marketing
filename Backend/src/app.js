@@ -15,5 +15,7 @@ import productRouter from './router/product.router.js'
 app.use('/products',productRouter)
 import cartRouter from './router/cart.router.js'
 app.use('/cart',cartRouter)
+import orderRouter from './router/order.router.js';
+app.use('/order',orderRouter)
 
 export {app}

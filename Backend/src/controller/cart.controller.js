@@ -39,7 +39,7 @@ export const getCart = asyncHandler(async (req, res, next) => {
     return next(new ApiError('Cart not found', 404));
   }
 
-  res.status(200).json(new ApiResponse('Cart retrieved', cart));
+  return res.status(200).json(new ApiResponse('Cart retrieved', cart));
 });
 
 export const updateCartItem = asyncHandler(async (req, res, next) => {

@@ -5,8 +5,8 @@ import {
   updateCartItem,
   removeCartItem,
   clearCart,
-} from '../controllers/cart.controller.js';
-import { verifyJWT } from '../middlewares/authMiddleware.js';
+} from '../controller/cart.controller.js';
+import { verifyJWT } from '../middleware/checkAuth.js';
 
 const router = express.Router();
 
