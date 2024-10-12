@@ -7,6 +7,7 @@ const FarmerDashboard = () => {
   const navigate = useNavigate();
   const { cart } = useContext(GlobalStateContext);
   const [farmerName, setFarmerName] = useState('');
+  const [orders,setOrder] = useState([]);
   const [products, setProducts] = useState([]);
   useEffect(() => {
     const storedFarmer = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -23,7 +24,21 @@ const FarmerDashboard = () => {
         console.error("Error fetching products:", error);
       }
     };
+
+    // Fetch Farmer Orders
+    const fetchOrders = async () => {
+      try {
+        const response = await get('/order/getorder');
+        setOrder(response.data)
+        console.log(orders);
+      } catch (error) {
+        console.log("Error fetching orders:", error);
+      }
+    }
+
     fetchProducts();
+    fetchOrders();
+
   }, []);
 
   const cartItems = Object.keys(cart).map((productId) => {
@@ -119,14 +134,20 @@ const FarmerDashboard = () => {
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h3 className="text-lg md:text-xl font-semibold mb-4">Recent Orders</h3>
           <ul>
-            {cartItems.map((item) => (
-                <li key={item._id} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
-                  <span>{item.productName}</span>
-                  <span>Qty: {item.quantity}</span>
-                  <span>Price: ₹{item.price * item.quantity}</span>
+            {orders.length === 0 ? (
+              <p>No orders available</p>
+            ) : (
+              orders.map((order) => (
+                <li key={order._id} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
+                  <span>Order ID: {order._id}</span>
+                  <div className="ml-4">
+                    <p>Product Name: {order.productName}</p>
+                    <p>Quantity: {order.quantity}</p>
+                    <p>Price: ₹{order.price}</p>
+                  </div>
                 </li>
               ))
-            }
+            )}
           </ul>
         </div>
       </section>

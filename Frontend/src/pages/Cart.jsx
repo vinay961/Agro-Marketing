@@ -47,7 +47,7 @@ const CartPage = () => {
     }
   };
 
-  const handlePaymentSubmit = () => {
+  const handlePaymentSubmit = async() => {
     if (selectedPaymentMethod === 'credit-card' || selectedPaymentMethod === 'debit-card') {
       if (!cardDetails.cardNumber || !cardDetails.expiryDate || !cardDetails.cvv) {
         alert('Please fill in all card details');
@@ -61,7 +61,37 @@ const CartPage = () => {
       }
       console.log('Processing UPI payment:', upiId);
     }
-    navigate('/successpage');
+    const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    const userId = JSON.parse(localStorage.getItem('loggedInUser'))._id;  
+    const cartItemsForBackend = cartItems.map(item => ({
+      productId: item._id,
+      quantity: item.quantity,
+    }));
+
+    try {
+      const response = await fetch('http://localhost:3000/order/setorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials:'include',
+        body: JSON.stringify({
+          userId,
+          cartItems: cartItemsForBackend,
+          totalAmount,
+          paymentMethod: selectedPaymentMethod,
+        }),
+      });
+
+      if (response.ok) {
+        console.log('Order successfully saved');
+        navigate('/successpage');
+      } else {
+        console.error('Failed to save order');
+      }
+    } catch (error) {
+      console.error('Error submitting payment:', error);
+    }
   };
 
   const cartItems = Object.keys(cart).map((productId) => {
