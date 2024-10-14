@@ -22,27 +22,77 @@ const setOrder = asyncHandler(async(req,res) =>{
     }
 })
 
-const getOrder = asyncHandler(async(req,res) => {
+const getOrder = asyncHandler(async(req, res) => {
     try {
-        const userId = req.user._id;
-        const userProducts = await Product.find({ user:userId });
-        if(!userProducts){
-            throw new ApiError(404,"No product found for that particular user.");
+        const userId = req.user ? req.user._id : null;  // Check if req.user exists
+        if (!userId) {
+            return res.status(401).json(new ApiResponse(401, {}, "Unauthorized access."));
         }
+
+        const userProducts = await Product.find({ user: userId });
+        if (userProducts.length === 0) {
+            return res.status(404).json(new ApiResponse(404, {}, "No products found for this user."));
+        }
+
         const userProductsId = userProducts.map(product => product._id);
-        console.log(userProductsId);
+        // console.log(userProductsId);
 
         const orders = await Order.find({ 'products.productId': { $in: userProductsId } }).populate('products.productId');
-        console.log(JSON.stringify(orders, null, 2));
+        // console.log(JSON.stringify(orders, null, 2));
 
-        return res.status(201).json(new ApiResponse(201,orders,"Orders fetched sucessfully."))
-
+        return res.status(200).json(new ApiResponse(200, orders, "Orders fetched successfully."));
     } catch (error) {
-        return res.status(401).json(new ApiResponse(404,{},"Failed to fetch order's."));
+        console.error(error);  
+        return res.status(500).json(new ApiResponse(500, {}, "Failed to fetch orders."));
+    }
+});
+
+const updateOrder = asyncHandler(async(req,res) => {
+    const { orderId } = req.params; 
+    const { status } = req.body; 
+
+    try {
+        if (status !== 'Processed' && status !== 'Rejected') {
+        return res.status(400).json({ message: 'Invalid status. Must be "Processed" or "Rejected".' });
+        }
+
+        const updatedOrder = await Order.findByIdAndUpdate(
+        orderId,
+        { status },
+        { new: true }
+        );
+
+        if (!updatedOrder) {
+        return res.status(404).json({ message: 'Order not found.' });
+        }
+
+        return res.status(200).json({ message: 'Order status updated successfully.', updatedOrder });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error while updating order status.' });
+    }
+})
+
+const deleteOrder = asyncHandler(async(req,res) => {
+    const { orderId } = req.params; 
+
+    try {
+        const deletedOrder = await Order.findByIdAndDelete(orderId);
+
+        if (!deletedOrder) {
+        return res.status(404).json({ message: 'Order not found.' });
+        }
+
+        return res.status(200).json({ message: 'Order deleted successfully.', deletedOrder });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Server error while deleting order.' });
     }
 })
 
 export {
     setOrder,
-    getOrder
+    getOrder,
+    updateOrder,
+    deleteOrder
 }

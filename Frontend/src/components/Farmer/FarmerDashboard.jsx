@@ -1,7 +1,7 @@
 import React, { useContext,useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GlobalStateContext } from '../../GlobalStateContext.jsx';
-import { get, del } from '../../services/Api.jsx';
+import { get, del,put } from '../../services/Api.jsx';
 
 const FarmerDashboard = () => {
   const navigate = useNavigate();
@@ -29,8 +29,8 @@ const FarmerDashboard = () => {
     const fetchOrders = async () => {
       try {
         const response = await get('/order/getorder');
+        console.log('Fetched Orders:', response.data); 
         setOrder(response.data)
-        console.log(orders);
       } catch (error) {
         console.log("Error fetching orders:", error);
       }
@@ -41,6 +41,38 @@ const FarmerDashboard = () => {
 
   }, []);
 
+  // Calculating stats
+  const pendingOrdersCount = orders.filter(order => order.status === 'Pending').length;
+  const totalOrdersCount = orders.length;
+  const totalEarnings = orders
+    .filter(order => order.status === 'Processed')
+    .reduce((total, order) => total + order.totalAmount, 0);
+
+  const handleProcessOrder = async (orderId) => {
+    try {
+      // Update the order status to 'Processed'
+      await put(`/order/updateorder/${orderId}`, { status: 'Processed' });
+      alert('Order has been processed.');
+      setOrder(orders.map(order => 
+        order._id === orderId ? { ...order, status: 'Processed' } : order
+      ));
+    } catch (error) {
+      console.error('Error processing order:', error);
+    }
+  };
+
+  const handleRejectOrder = async (orderId) => {
+    try {
+      // Delete the order from the database
+      await del(`/order/deleteorder/${orderId}`);
+      alert('Order has been rejected and deleted.');
+      setOrder(orders.filter(order => order._id !== orderId));
+    } catch (error) {
+      console.error('Error rejecting order:', error);
+    }
+  };
+
+
   const cartItems = Object.keys(cart).map((productId) => {
     const product = products.find((p) => p._id === productId);
     return {
@@ -49,13 +81,11 @@ const FarmerDashboard = () => {
       quantity: cart[productId],
     };
   });
-  console.log(cartItems);
 
   const deleteProduct = async (productId) => {
     try {
       await del(`/products/deleteproduct/${productId}`);
       alert("Product Removed Successfully.");
-      // Remove the deleted product from the local state
       setProducts(products.filter(product => product._id !== productId));
     } catch (error) {
       console.error("Error deleting product:", error);
@@ -90,15 +120,15 @@ const FarmerDashboard = () => {
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h2 className="text-lg md:text-xl font-bold">Total Orders</h2>
-          <p className="text-xl md:text-2xl font-semibold">{Object.keys(cart).length}</p>
+          <p className="text-xl md:text-2xl font-semibold">{totalOrdersCount}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h2 className="text-lg md:text-xl font-bold">Pending Orders</h2>
-          <p className="text-xl md:text-2xl font-semibold">3</p>
+          <p className="text-xl md:text-2xl font-semibold">{pendingOrdersCount}</p>
         </div>
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h2 className="text-lg md:text-xl font-bold">Earnings</h2>
-          <p className="text-xl md:text-2xl font-semibold">₹10,000</p>
+          <p className="text-xl md:text-2xl font-semibold">{totalEarnings}</p>
         </div>
       </section>
 
@@ -131,26 +161,58 @@ const FarmerDashboard = () => {
       {/* Order Management Section */}
       <section id="order-management" className="mb-8">
         <h2 className="text-xl md:text-2xl font-bold mb-4">Order Management</h2>
-        <div className="bg-white p-4 rounded-lg shadow-lg">
-          <h3 className="text-lg md:text-xl font-semibold mb-4">Recent Orders</h3>
-          <ul>
-            {orders.length === 0 ? (
-              <p>No orders available</p>
-            ) : (
-              orders.map((order) => (
-                <li key={order._id} className="flex flex-col md:flex-row justify-between items-start md:items-center mb-2">
-                  <span>Order ID: {order._id}</span>
-                  <div className="ml-4">
-                    <p>Product Name: {order.productName}</p>
-                    <p>Quantity: {order.quantity}</p>
-                    <p>Price: ₹{order.price}</p>
-                  </div>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
+        {orders.length === 0 ? (
+          <p className="text-gray-500">No orders available</p>
+        ) : (
+          orders.map((order) => (
+            <div key={order._id} className="bg-white p-6 rounded-lg shadow-md mb-6">
+              <div className="flex justify-between items-center">
+                <div className="text-gray-700">
+                  <h4 className="font-bold text-lg">Order ID: {order._id}</h4>
+                  <p>Status: <span className={`font-semibold ${order.status === 'Pending' ? 'text-yellow-500' : 'text-green-500'}`}>{order.status}</span></p>
+                  <p>Total Amount: <span className="font-semibold text-gray-900">₹{order.totalAmount}</span></p>
+                  <p>Payment Method: {order.paymentMethod}</p>
+                  <p>Payment Status: <span className={`font-semibold ${order.paymentStatus === 'Not Paid' ? 'text-red-500' : 'text-green-500'}`}>{order.paymentStatus}</span></p>
+                </div>
+
+                {/* Action Buttons for Farmer */}
+                <div className="flex space-x-4">
+                  <button
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md shadow"
+                    onClick={() => handleProcessOrder(order._id)}
+                  >
+                    Process Order
+                  </button>
+                  <button
+                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md shadow"
+                    onClick={() => handleRejectOrder(order._id)}
+                  >
+                    Reject Order
+                  </button>
+                </div>
+              </div>
+
+              {/* Products Section */}
+              <h5 className="font-semibold text-gray-900 mt-6 mb-3">Products:</h5>
+              <ul className="space-y-4">
+                {order.products.map((item) => (
+                  <li key={item._id} className="bg-gray-100 p-4 rounded-lg shadow-md flex justify-between items-center">
+                    <div>
+                      <p className="text-lg font-semibold text-gray-800">{item.productId.productName}</p>
+                      <p className="text-gray-700">Category: {item.productId.category}</p>
+                      <p className="text-gray-700">Price: ₹{item.productId.price}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-gray-700">Quantity: <span className="font-semibold">{item.quantity}</span></p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        )}
       </section>
+
 
       {/* Notifications Section */}
       <section id="notifications" className="mb-8">
