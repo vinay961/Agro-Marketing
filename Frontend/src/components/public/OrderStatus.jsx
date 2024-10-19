@@ -38,7 +38,8 @@ const OrderStatus = () => {
     const getUserOrder = async() => {
       try {
         const response = await get('/order/getuserorder');
-        console.log('Fetched Orders:', response.data);
+        const data = response.data;
+        console.log('Fetched Orders:', data[0].products[0].productId);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
