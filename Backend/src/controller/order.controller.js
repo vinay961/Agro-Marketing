@@ -22,9 +22,9 @@ const setOrder = asyncHandler(async(req,res) =>{
     }
 })
 
-const getOrder = asyncHandler(async(req, res) => {
+const getOrder = asyncHandler(async(req, res) => {    
     try {
-        const userId = req.user ? req.user._id : null;  // Check if req.user exists
+        const userId = req.user ? req.user._id : null;  
         if (!userId) {
             return res.status(401).json(new ApiResponse(401, {}, "Unauthorized access."));
         }
@@ -90,9 +90,28 @@ const deleteOrder = asyncHandler(async(req,res) => {
     }
 })
 
+const getUserOrder = asyncHandler(async(req,res) => {
+    try {
+        const userId = req.user._id;
+        if(!userId){
+            throw new ApiError(404,"User not found.")
+        }
+        const userOrder = await Order.find({ userId });
+        if(!userOrder){
+            throw new ApiError(404,"No Order is placed by user!!")
+        }
+        // console.log(userOrder);
+        return res.status(201).json(new ApiResponse(201,userOrder,"Order fetched successfully"))
+    } catch (error) {
+        console.log(error);
+        return res.status(400).json(new ApiResponse(400,{},"Error found while finding order of user."))
+    }
+})
+
 export {
     setOrder,
     getOrder,
     updateOrder,
-    deleteOrder
+    deleteOrder,
+    getUserOrder
 }

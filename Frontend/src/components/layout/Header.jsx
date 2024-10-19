@@ -80,7 +80,10 @@ function Header({ isAuthenticated, logout, userRole }) {
                   {userRole === 'farmer' && (
                     <Link to="/farmerdashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                       Dashboard
-                    </Link>
+                    </Link> 
+                  )}
+                  {isAuthenticated && userRole === 'customer' && (
+                      <Link to="/orderstatus" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Order Status</Link>
                   )}
                   <button 
                     onClick={logout} 
@@ -130,6 +133,12 @@ function Header({ isAuthenticated, logout, userRole }) {
             <li>
               <Link to="/contact" className="hover:text-gray-200" onClick={toggleMobileMenu}>Contact Us</Link>
             </li>
+            {/* Show Order Status button for customers in mobile menu */}
+            {isAuthenticated && userRole === 'customer' && (
+              <li>
+                <Link to="/orderstatus" className="hover:text-gray-200" onClick={toggleMobileMenu}>Order Status</Link>
+              </li>
+            )}
           </ul>
         </div>
       )}
