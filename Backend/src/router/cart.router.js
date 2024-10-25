@@ -10,10 +10,10 @@ import { verifyJWT } from '../middleware/checkAuth.js';
 
 const router = express.Router();
 
-router.post('/add', verifyJWT, addToCart);         
-router.get('/', verifyJWT, getCart);             
-router.put('/update', verifyJWT, updateCartItem);  
-router.delete('/remove', verifyJWT, removeCartItem);  
-router.delete('/clear', verifyJWT, clearCart);     
+router.post('/addtocart', verifyJWT, addToCart);         
+router.get('/getcart', verifyJWT, getCart);             
+router.put('/updatecartitem', verifyJWT, updateCartItem);  
+router.delete('/removecartitem', verifyJWT, removeCartItem);  
+router.delete('/clearcartitem', verifyJWT, clearCart);     
 
 export default router;

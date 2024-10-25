@@ -1,6 +1,7 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GlobalStateContext } from '../GlobalStateContext.jsx';
+import { post } from '../services/Api.jsx';
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -14,6 +15,14 @@ const CartPage = () => {
   });
   const [upiId, setUpiId] = useState('');
 
+  useEffect(()=>{
+    const user = localStorage.getItem('loggedInUser');
+    console.log(cart);
+    if (!user) {
+      alert('To keep your cart items for later, kindly log in.');
+    }
+  },[])
+
   const incrementQuantityInCart = (productId) => {
     setCart((prevCart) => {
       const updatedCart = {
@@ -23,7 +32,7 @@ const CartPage = () => {
       localStorage.setItem('cart', JSON.stringify(updatedCart));
       return updatedCart;
     });
-  };
+  };  
 
   const decrementQuantityInCart = (productId) => {
     setCart((prevCart) => {
@@ -38,12 +47,36 @@ const CartPage = () => {
     });
   };
 
-  const handleCheckout = () => {
+  const cartItems = Object.keys(cart).map((productId) => {
+    const product = products.find((p) => p._id === productId);
+    return {
+      ...product,
+      quantity: cart[productId],
+    };
+  });
+
+  const handleCheckout = async() => {
     const user = localStorage.getItem('loggedInUser');
     if (!user) {
       navigate('/login');
     } else {
       setShowPayment(true);
+      try {
+        const response = await post('/cart/addtocart',cart);
+        console.log(response);
+      } catch (error) {
+        console.log("Error while saving cart data.");
+        console.log(error);
+      }
+    }
+  };
+
+  const handleCartItems = () => {
+    try {
+      
+    } catch (error) {
+      console.log("Encountered error while saving the cart items to db.");
+      console.log(error);
     }
   };
 
@@ -93,14 +126,6 @@ const CartPage = () => {
       console.error('Error submitting payment:', error);
     }
   };
-
-  const cartItems = Object.keys(cart).map((productId) => {
-    const product = products.find((p) => p._id === productId);
-    return {
-      ...product,
-      quantity: cart[productId],
-    };
-  });
 
   return (
     <div className="container mx-auto py-8">
