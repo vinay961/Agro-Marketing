@@ -11,7 +11,7 @@ import { verifyJWT } from '../middleware/checkAuth.js';
 const router = express.Router();
 
 router.post('/addtocart', verifyJWT, addToCart);         
-router.get('/getcart', verifyJWT, getCart);             
+router.get('/getcartitem', verifyJWT, getCart);             
 router.put('/updatecartitem', verifyJWT, updateCartItem);  
 router.delete('/removecartitem', verifyJWT, removeCartItem);  
 router.delete('/clearcartitem', verifyJWT, clearCart);     

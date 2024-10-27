@@ -11,13 +11,14 @@ export const GlobalStateProvider = ({ children }) => {
   useEffect(() => {
     const authStatus = checkUserAuthentication();
     setIsAuthenticated(authStatus);
-  }, []); // Check authentication only once on mount
+  }, []);
 
   useEffect(() => {
     const fetchCartData = async () => {
       if (isAuthenticated) {
         try {
           const fetchedCart = await fetchUserCart();
+          console.log(fetchedCart);
           setCart(fetchedCart);
           localStorage.setItem('cart', JSON.stringify(fetchedCart));
         } catch (error) {
@@ -53,11 +54,22 @@ const checkUserAuthentication = () => {
 const fetchUserCart = async () => {
   try {
     const response = await get('/cart/getcartitem');
-    if (!response.ok) {
+    console.log(response);
+    
+    if (!response) {
       throw new Error('Failed to fetch cart data');
     }
-    const data = await response.json();
-    return data.cart || {}; 
+    
+    
+    const cartItems = response.data.cartItems || [];
+    
+    
+    const cartObject = cartItems.reduce((acc, item) => {
+      acc[item._id] = item; 
+      return acc;
+    }, {});
+
+    return cartObject; 
   } catch (error) {
     console.error('Error fetching cart:', error);
     return {}; 

@@ -146,7 +146,7 @@ const CartPage = () => {
                   <span className="text-yellow-500">{"★★★★☆"}</span>
                   <span className="ml-2 text-gray-500">({20} reviews)</span>
                 </div>
-                <p className="text-sm text-gray-500 mb-4">Category: {(item.category).toUpperCase()}</p>
+                <p className="text-sm text-gray-500 mb-4">Category: {item.category ? item.category.toUpperCase() : 'N/A'}</p>
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => decrementQuantityInCart(item._id)}
